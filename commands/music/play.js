@@ -9,7 +9,11 @@ const data = new SlashCommandSubcommandBuilder()
     .addStringOption(option => 
         option.setName('query')
             .setDescription('Canción o playlist de YouTube a reproducir.')
-            .setRequired(true));
+            .setRequired(true))
+    .addBooleanOption(option =>
+        option.setName('next')
+            .setDescription('Reproducir la canción después de la actual.')
+            .setRequired(false));
 
 var execute = async function(interaction) {
     var connection = getVoiceConnection(interaction.guildId);
@@ -21,6 +25,8 @@ var execute = async function(interaction) {
     var queue = connection.queue;
 
     var query = interaction.options.getString('query');
+    var next = interaction.options.getBoolean('next');
+
     if (query.includes('list=')) {
         var playlist = await utils.getPlaylistSongs(query, interaction.user);
         if (playlist == null) {
@@ -35,7 +41,17 @@ var execute = async function(interaction) {
         }
 
         var title = await utils.getPlaylistTitle(query);
-        playlist.forEach(song => queue.add(song));
+
+        if (next) {
+            for (var i = playlist.length - 1; i >= 0; i--) {
+                queue.addNext(playlist[i]);
+            }
+        } else {
+            for (var i = 0; i < playlist.length; i++) {
+                queue.add(playlist[i]);
+            }
+        }
+
         interaction.followUp({ embeds: [embedMessages.getPlaylistAddToQueueMessage(playlist, title, query)] });
 
         if (queue.playing) {
@@ -48,7 +64,7 @@ var execute = async function(interaction) {
             return interaction.followUp({ embeds: [msg] });
         }
 
-        queue.add(song);
+        next ? queue.addNext(song) : queue.add(song);
     }
 
     if (queue.playing && !query.includes('list=')) {

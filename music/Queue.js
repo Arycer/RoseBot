@@ -11,6 +11,10 @@ class Queue {
         this.songs.push(song);
     }
 
+    addNext(song) {
+        this.songs.unshift(song);
+    }
+
     remove(index) {
         this.songs.splice(index, 1);
     }
