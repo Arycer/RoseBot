@@ -60,7 +60,6 @@ var searchSong = async function(query, requester) {
         for (const result of results) {
             info = await getInfo(result.url);
             if (info != null) {
-                query = result.url;
                 break;
             }
         }
@@ -76,8 +75,9 @@ var searchSong = async function(query, requester) {
     }
 
     var title = info.videoDetails.title;
-    var duration = await getSongDuration(query);
-    return new Song(title, query, duration, requester);
+    var url = info.videoDetails.video_url;
+    var duration = await getSongDuration(url);
+    return new Song(title, url, duration, requester);
 }
 
 var createResource = async function(song) {
