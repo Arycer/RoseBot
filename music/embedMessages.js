@@ -266,6 +266,17 @@ var getSongNotFoundMessage = function() {
     return embed;
 }
 
+var getEmptyChannelMessage = function() {
+    var embed = new EmbedBuilder()
+        .setAuthor({
+            name: "Me he desconectado: 🚪"
+        })
+        .setColor("#eee70b")
+        .setDescription(`Me he desconectado del canal de voz porque no había nadie en él.`)
+
+    return embed;
+}
+
 module.exports = {
     getNotInVoiceChannelMessage: getNotInVoiceChannelMessage,
     getNotPlayingMessage: getNotPlayingMessage,
@@ -286,5 +297,6 @@ module.exports = {
     getEmptyQueueMessage: getEmptyQueueMessage,
     getPlaylistNotFoundSongsMessage: getPlaylistNotFoundSongsMessage,
     getPlaylistNotFoundMessage: getPlaylistNotFoundMessage,
-    getSongNotFoundMessage: getSongNotFoundMessage
+    getSongNotFoundMessage: getSongNotFoundMessage,
+    getEmptyChannelMessage: getEmptyChannelMessage
 }

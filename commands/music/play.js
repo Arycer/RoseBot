@@ -82,11 +82,13 @@ var execute = async function(interaction) {
 
             var msg = embedMessages.getNowPlayingMessage(song);
             queue.playing ? 
-                interaction.channel.send({ embeds: [msg] }) : 
-                interaction.followUp({ embeds: [msg] }) && (queue.playing = true);
+                await utils.trySend(connection.textChannel, msg) : 
+                await interaction.followUp({ embeds: [msg] }) && (queue.playing = true);
 
-            await utils.wait(interaction.client, player);
+            await utils.wait(interaction.client, player, connection);
         } while (queue.looping || queue.songs.length > 0);
+
+        queue.playing = false;
     }
 }
 

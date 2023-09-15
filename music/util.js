@@ -1,4 +1,5 @@
 const { createAudioResource, joinVoiceChannel, createAudioPlayer, AudioPlayerStatus } = require('@discordjs/voice');
+const embedMessages = require('./embedMessages.js');
 const { getBasicInfo } = require('ytdl-core');
 const Queue = require('./Queue.js');
 const Song = require('./Song.js');
@@ -92,6 +93,7 @@ var createConnection = async function (interaction) {
         adapterCreator: interaction.guild.voiceAdapterCreator
     });
 
+    connection.textChannel = interaction.channel;
     connection.queue = new Queue();
 
     var player = createAudioPlayer();
@@ -100,13 +102,17 @@ var createConnection = async function (interaction) {
     return connection;
 }
 
-var wait = async function(client, player) {
-    while(player.state.status != AudioPlayerStatus.Idle || player.state.status == AudioPlayerStatus.Buffering) {
+var wait = async function(client, player, connection) {
+    while(player.state.status != AudioPlayerStatus.Idle) {
+        if (connection.state.status == 'destroyed') {
+            return;
+        }
+
         await new Promise(resolve => setTimeout(resolve, 1000));
 
         var count = await getUserCount(client, player);
         if (count == 1) {
-            await leaveIfEmpty(client, player);
+            await leaveIfEmpty(client, player, connection);
         }
     }
 }
@@ -119,30 +125,29 @@ var getUserCount = async function(client, player) {
     return channel.members.size;
 }
 
-var leaveIfEmpty = async function(client, player) {
-    if (player.state.status == AudioPlayerStatus.Idle) {
-        player.stop();
-        return;
-    }
-
+var leaveIfEmpty = async function(client, player, connection) {
+    var count = await getUserCount(client, player);
     var timeouts = 0;
-    while(player.state.status == AudioPlayerStatus.Playing) {
-        var count = await getUserCount(client, player);
 
-        if (count == 1) {
-            timeouts++;
-            if (timeouts >= 60 * 5) {
-                player.stop();
-                break;
-            }
-        } else {
+    do {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        count = await getUserCount(client, player);
+        timeouts++;
+
+        if (timeouts >= 60 * 3) {
+            await trySend(connection.textChannel, embedMessages.getEmptyChannelMessage());
+            connection.destroy();
             return;
         }
+    } while(count == 1);
+}
 
-        await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second
+var trySend = async function(channel, embed) {
+    try {
+        await channel.send({ embeds: [embed] });
+    } catch (err) {
+        console.log(err);
     }
-    
-    return;
 }
 
 var getList = async function(url) {
@@ -194,5 +199,6 @@ module.exports = {
     getPlaylistUrls: getPlaylistUrls,
     getPlaylistSongs: getPlaylistSongs,
     getPlaylistTitle: getPlaylistTitle,
-    getInfo: getInfo
+    getInfo: getInfo,
+    trySend: trySend
 }
