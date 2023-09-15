@@ -10,7 +10,6 @@ var getInfo = async function(url) {
     try {
         var info = await getBasicInfo(url);
     } catch (err) {
-        console.log(err);
         return null;
     }
 
@@ -62,7 +61,23 @@ var searchSong = async function(query, requester) {
 
     var info = await getInfo(url);
     if (info == null) {
-        return null;
+        if (regex.test(query)) {
+            return null;
+        }
+
+        var results = await play.search(query, { limit: 3 });
+
+        for (const result of results) {
+            info = await getInfo(result.url);
+            if (info != null) {
+                url = result.url;
+                break;
+            }
+        }
+
+        if (info == null) {
+            return null;
+        }
     }
 
     var title = info.videoDetails.title;
@@ -146,10 +161,12 @@ var getList = async function(url) {
         console.log(err);
         return null;
     }
+
+    return list;
 }
 
 var getPlaylistUrls = async function(url) {
-    var list = await ytfps(url);
+    var list = await getList(url);
     if (list == null) {
         return null;
     }
