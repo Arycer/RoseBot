@@ -30,11 +30,17 @@ var execute = async function(interaction) {
             var notFoundSongs = playlist.filter(song => song == null);
             var msg = embedMessages.getPlaylistNotFoundSongsMessage(notFoundSongs.length);
             interaction.followUp({ embeds: [msg] });
+
+            playlist = playlist.filter(song => song != null);
         }
 
         var title = await utils.getPlaylistTitle(query);
         playlist.forEach(song => queue.add(song));
-        interaction.followUp({ embeds: [embedMessages.getPlaylistAddToQueueMessage(queue.songs, title, query)] });
+        interaction.followUp({ embeds: [embedMessages.getPlaylistAddToQueueMessage(playlist, title, query)] });
+
+        if (queue.playing) {
+            return;
+        }
     } else {
         var song = await utils.searchSong(query, interaction.user);
         if (song == null) {
@@ -45,10 +51,8 @@ var execute = async function(interaction) {
         queue.add(song);
     }
 
-    if (queue.playing) {
-        return query.includes('list=') ?
-            interaction.followUp({ embeds: [embedMessages.getPlaylistAddToQueueMessage(queue.songs, title, query)] }) :
-            interaction.followUp({ embeds: [embedMessages.getAddToQueueMessage(song)] });
+    if (queue.playing && !query.includes('list=')) {
+        return interaction.followUp({ embeds: [embedMessages.getAddToQueueMessage(song)] });
     } else {
         do {
             if (!queue.looping || !queue.current) {
