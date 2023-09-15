@@ -53,24 +53,14 @@ var getSongDuration = async function(url) {
 var searchSong = async function(query, requester) {
     var regex = /(?:youtube\.com\/\S*(?:(?:\/e(?:mbed))?\/|watch\/?\?(?:\S*?&?v\=))|youtu\.be\/)([a-zA-Z0-9_-]{6,11})/g;
 
-    var url = query;
-    if (!regex.test(url)) {
-        var results = await play.search(query, { limit: 1 });
-        url = results[0].url;
-    }
-
-    var info = await getInfo(url);
-    if (info == null) {
-        if (regex.test(query)) {
-            return null;
-        }
-
+    var info = null;
+    if (!regex.test(query)) {
         var results = await play.search(query, { limit: 3 });
 
         for (const result of results) {
             info = await getInfo(result.url);
             if (info != null) {
-                url = result.url;
+                query = result.url;
                 break;
             }
         }
@@ -78,11 +68,16 @@ var searchSong = async function(query, requester) {
         if (info == null) {
             return null;
         }
+    } else {
+        info = await getInfo(query);
+        if (info == null) {
+            return null;
+        }
     }
 
     var title = info.videoDetails.title;
-    var duration = await getSongDuration(url);
-    return new Song(title, url, duration, requester);
+    var duration = await getSongDuration(query);
+    return new Song(title, query, duration, requester);
 }
 
 var createResource = async function(song) {
@@ -106,11 +101,7 @@ var createConnection = async function (interaction) {
 }
 
 var wait = async function(client, player) {
-    while (player.state.status == AudioPlayerStatus.Buffering) {
-        await new Promise(resolve => setTimeout(resolve, 1000));
-    }
-
-    while(player.state.status != AudioPlayerStatus.Idle) {
+    while(player.state.status != AudioPlayerStatus.Idle || player.state.status == AudioPlayerStatus.Buffering) {
         await new Promise(resolve => setTimeout(resolve, 1000));
 
         var count = await getUserCount(client, player);
