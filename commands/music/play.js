@@ -1,4 +1,4 @@
-const { SlashCommandSubcommandBuilder, EmbedBuilder } = require('discord.js');
+const { SlashCommandSubcommandBuilder } = require('discord.js');
 const { getVoiceConnection } = require('@discordjs/voice');
 const utils = require('../../music/util.js');
 const embedMessages = require('../../music/embedMessages.js');
@@ -12,9 +12,6 @@ const data = new SlashCommandSubcommandBuilder()
             .setRequired(true));
 
 var execute = async function(interaction) {
-    var voiceChannel = interaction.member.voice.channel;
-    if (!voiceChannel) return interaction.followUp({ embeds: [embedMessages.getNotInVoiceChannelMessage()] });
-
     var connection = getVoiceConnection(interaction.guildId);
     if (!connection) {
         connection = await utils.createConnection(interaction);

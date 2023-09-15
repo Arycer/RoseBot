@@ -7,12 +7,7 @@ const data = new SlashCommandSubcommandBuilder()
     .setDescription('Establece el modo de reproducción aleatorio.');
 
 var execute = async function(interaction) {
-    var voiceChannel = interaction.member.voice.channel;
-    if (!voiceChannel) return interaction.followUp({ embeds: [embedMessages.getNotInVoiceChannelMessage()] });
-
     var connection = getVoiceConnection(interaction.guildId);
-    if (!connection) return interaction.followUp({ embeds: [embedMessages.getNotPlayingMessage()] });
-
     var queue = connection.queue;
     queue.shuffling = !queue.shuffling;
 

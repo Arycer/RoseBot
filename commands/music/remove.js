@@ -1,5 +1,5 @@
-const { SlashCommandSubcommandBuilder, EmbedBuilder } = require('discord.js');
-const { getVoiceConnection, AudioPlayerStatus } = require('@discordjs/voice');
+const { SlashCommandSubcommandBuilder } = require('discord.js');
+const { getVoiceConnection } = require('@discordjs/voice');
 const embedMessages = require('../../music/embedMessages.js');
 
 const data = new SlashCommandSubcommandBuilder()
@@ -8,12 +8,7 @@ const data = new SlashCommandSubcommandBuilder()
     .addIntegerOption(option => option.setName('index').setDescription('El índice de la canción a eliminar.').setRequired(true));
 
 var execute = async function(interaction) {
-    var voiceChannel = interaction.member.voice.channel;
-    if (!voiceChannel) return interaction.followUp({ embeds: [embedMessages.getNotInVoiceChannelMessage()] });
-
     var connection = getVoiceConnection(interaction.guildId);
-    if (!connection) return interaction.followUp({ embeds: [embedMessages.getNotPlayingMessage()] });
-
     var queue = connection.queue;
     var index = interaction.options.getInteger('index') - 1;
     if (index < 0 || index >= queue.songs.length) return interaction.followUp({ embeds: [embedMessages.getInvalidIndexMessage()] });

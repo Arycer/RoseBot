@@ -73,7 +73,11 @@ var wait = async function(client, player) {
 
     while(player.state.status != AudioPlayerStatus.Idle) {
         await new Promise(resolve => setTimeout(resolve, 1000));
-        await leaveIfEmpty(client, player);
+
+        var count = await getUserCount(client, player);
+        if (count == 1) {
+            await leaveIfEmpty(client, player);
+        }
     }
 }
 
