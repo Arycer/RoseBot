@@ -4,14 +4,34 @@ const Queue = require('./Queue.js');
 const Song = require('./Song.js');
 const play = require('play-dl');
 const ytfps = require('ytfps');
+require('dotenv').config();
+
+var getInfo = async function(url) {
+    try {
+        var info = await getBasicInfo(url);
+    } catch (err) {
+        console.log(err);
+        return null;
+    }
+
+    return info;
+}
 
 var getSongTitle = async function(url) {
-    var info = await getBasicInfo(url);
+    var info = await getInfo(url);
+    if (info == null) {
+        return null;
+    }
+
     return info.videoDetails.title;
 }
 
 var getSongDuration = async function(url) {
-    var info = await getBasicInfo(url);
+    var info = await getInfo(url);
+    if (info == null) {
+        return null;
+    }
+
     var seconds = info.videoDetails.lengthSeconds;
     var hours = Math.floor(seconds / 3600);
     seconds -= hours * 3600;
@@ -34,16 +54,20 @@ var getSongDuration = async function(url) {
 var searchSong = async function(query, requester) {
     var regex = /(?:youtube\.com\/\S*(?:(?:\/e(?:mbed))?\/|watch\/?\?(?:\S*?&?v\=))|youtu\.be\/)([a-zA-Z0-9_-]{6,11})/g;
 
-    if (regex.test(query)) {
-        var title = await getSongTitle(query);
-        var duration = await getSongDuration(query);
-        return new Song(title, query, duration, requester);
-    } else {
+    var url = query;
+    if (!regex.test(url)) {
         var results = await play.search(query, { limit: 1 });
-        var song = results[0];
-        var duration = await getSongDuration(song.url);
-        return new Song(song.title, song.url, duration, requester);
+        url = results[0].url;
     }
+
+    var info = await getInfo(url);
+    if (info == null) {
+        return null;
+    }
+
+    var title = info.videoDetails.title;
+    var duration = await getSongDuration(url);
+    return new Song(title, url, duration, requester);
 }
 
 var createResource = async function(song) {
@@ -115,27 +139,41 @@ var leaveIfEmpty = async function(client, player) {
     return;
 }
 
+var getList = async function(url) {
+    try {
+        var list = await ytfps(url);
+    } catch (err) {
+        console.log(err);
+        return null;
+    }
+}
+
 var getPlaylistUrls = async function(url) {
     var list = await ytfps(url);
+    if (list == null) {
+        return null;
+    }
     var videos = list.videos;
     return videos.map(video => video.url);
 }
 
 var getPlaylistSongs = async function(url, requester) {
     var urls = await getPlaylistUrls(url);
-    var songs = [];
-    for (var i = 0; i < urls.length; i++) {
-        var song = await searchSong(urls[i], requester);
-        songs.push(song);
+    if (urls == null) {
+        return null;
     }
-    return songs;
+
+    var songPromises = urls.map(async (url) => {
+        return await searchSong(url, requester);
+    });
+
+    return await Promise.all(songPromises);
 }
 
 var getPlaylistTitle = async function(url) {
     var list = await ytfps(url);
     return list.title;
 }
-
 
 module.exports = {
     getSongTitle: getSongTitle,
@@ -147,5 +185,6 @@ module.exports = {
     leaveIfEmpty: leaveIfEmpty,
     getPlaylistUrls: getPlaylistUrls,
     getPlaylistSongs: getPlaylistSongs,
-    getPlaylistTitle: getPlaylistTitle
+    getPlaylistTitle: getPlaylistTitle,
+    getInfo: getInfo
 }

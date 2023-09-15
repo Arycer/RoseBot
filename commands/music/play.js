@@ -23,11 +23,25 @@ var execute = async function(interaction) {
     var query = interaction.options.getString('query');
     if (query.includes('list=')) {
         var playlist = await utils.getPlaylistSongs(query, interaction.user);
+        if (playlist == null) {
+            var msg = embedMessages.getPlaylistNotFoundMessage();
+            return interaction.followUp({ embeds: [msg] });
+        } if (playlist.includes(null)) {
+            var notFoundSongs = playlist.filter(song => song == null);
+            var msg = embedMessages.getPlaylistNotFoundSongsMessage(notFoundSongs.length);
+            interaction.followUp({ embeds: [msg] });
+        }
+
         var title = await utils.getPlaylistTitle(query);
         playlist.forEach(song => queue.add(song));
         interaction.followUp({ embeds: [embedMessages.getPlaylistAddToQueueMessage(queue.songs, title, query)] });
     } else {
         var song = await utils.searchSong(query, interaction.user);
+        if (song == null) {
+            var msg = embedMessages.getSongNotFoundMessage();
+            return interaction.followUp({ embeds: [msg] });
+        }
+
         queue.add(song);
     }
 

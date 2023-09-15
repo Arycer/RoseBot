@@ -225,6 +225,47 @@ var getEmptyQueueMessage = function() {
     return embed;
 }
 
+var getPlaylistNotFoundSongsMessage = function(songs) {
+    var embed = new EmbedBuilder()
+        .setAuthor({
+            name: "Algunas canciones no se han encontrado: ❌"
+        })
+        .setColor("#eee70b");
+
+    var description = "";
+    if (songs > 1) {
+        description = `No se han encontrado ${songs.length} canciones. Es posible que los vídeos estén eliminados, sean privados o tengan restricciones de edad.`;
+    } else {
+        description = `No se ha encontrado una canción. Es posible que el vídeo esté eliminado, sea privado o tenga restricciones de edad.`;
+    }
+
+    embed.setDescription(description);
+
+    return embed;
+}
+
+var getPlaylistNotFoundMessage = function() {
+    var embed = new EmbedBuilder()
+        .setAuthor({
+            name: "Playlist no encontrada: ❌"
+        })
+        .setColor("#eee70b")
+        .setDescription(`No se ha encontrado la playlist. Es posible la playlist sea privada o que el enlace sea inválido.`)
+
+    return embed;
+}
+
+var getSongNotFoundMessage = function() {
+    var embed = new EmbedBuilder()
+        .setAuthor({
+            name: "Canción no encontrada: ❌"
+        })
+        .setColor("#eee70b")
+        .setDescription(`No se ha encontrado la canción. Es posible que el vídeo esté eliminado, sea privado o tenga restricciones de edad.`)
+
+    return embed;
+}
+
 module.exports = {
     getNotInVoiceChannelMessage: getNotInVoiceChannelMessage,
     getNotPlayingMessage: getNotPlayingMessage,
@@ -242,5 +283,8 @@ module.exports = {
     getRemoveMessage: getRemoveMessage,
     getInvalidIndexMessage: getInvalidIndexMessage,
     getStopMessage: getStopMessage,
-    getEmptyQueueMessage: getEmptyQueueMessage
+    getEmptyQueueMessage: getEmptyQueueMessage,
+    getPlaylistNotFoundSongsMessage: getPlaylistNotFoundSongsMessage,
+    getPlaylistNotFoundMessage: getPlaylistNotFoundMessage,
+    getSongNotFoundMessage: getSongNotFoundMessage
 }
