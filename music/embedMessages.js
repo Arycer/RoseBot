@@ -73,7 +73,7 @@ var getPlaylistAddToQueueMessage = function(songs, title, url) {
     return embed;
 }
 
-var getQueueMessage = function(queue, requester) {
+var getQueueMessage = function(queue, page, requester) {
     var embed = new EmbedBuilder()
         .setAuthor({
             name: "Cola de reproducción: 🎵"
@@ -88,7 +88,10 @@ var getQueueMessage = function(queue, requester) {
         .setURL(queue.current.url);
 
     var description = "";
-    for (var i = 0; i < queue.songs.length && i < 10; i++) {
+    var start = (page - 1) * 10;
+    var end = start + 10;
+
+    for (var i = start; i < queue.songs.length && i < end; i++) {
         var song = queue.songs[i];
         description += `${i + 1}. [${song.title}](${song.url}) - ${song.duration}\n`;
     }
