@@ -14,6 +14,7 @@ var execute = async function(interaction) {
     var connection = getVoiceConnection(interaction.guildId);
     var queue = connection.queue;
 
+    var page = interaction.options.getInteger('page') || 1;
     if (queue.songs.length == 0) return interaction.followUp({ embeds: [embedMessages.getEmptyQueueMessage()] });
     interaction.followUp({ embeds: [embedMessages.getQueueMessage(queue, page, interaction.user)] });
 }
