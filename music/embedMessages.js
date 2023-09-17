@@ -98,6 +98,11 @@ var getQueueMessage = function(queue, page, requester) {
 
     embed.setDescription(description);
 
+    var totalPages = Math.ceil(queue.songs.length / 10);
+    embed.setFooter({
+        text: `Página ${page} de ${totalPages}`
+    });
+
     return embed;
 }
 
