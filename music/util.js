@@ -118,6 +118,10 @@ var wait = async function(client, player, connection) {
 }
 
 var getUserCount = async function(client, player) {
+    if (!player.subscribers[0]) {
+        return 0;
+    }
+
     var channel_id = player.subscribers[0].connection.packets.state.channel_id;
     var guild_id = player.subscribers[0].connection.packets.state.guild_id;
     var guild = client.guilds.cache.get(guild_id);
@@ -135,11 +139,19 @@ var leaveIfEmpty = async function(client, player, connection) {
         timeouts++;
 
         if (timeouts >= 60 * 3) {
+            await destroy(player, connection);
             await trySend(connection.textChannel, embedMessages.getEmptyChannelMessage());
-            connection.destroy();
             return;
         }
     } while(count == 1);
+}
+
+var destroy = async function (player, connection) {
+    if (connection.queue && connection.queue.songs) {
+        connection.queue.songs = [];
+        player.stop();
+        connection.destroy();
+    }
 }
 
 var trySend = async function(channel, embed) {
@@ -200,5 +212,6 @@ module.exports = {
     getPlaylistSongs: getPlaylistSongs,
     getPlaylistTitle: getPlaylistTitle,
     getInfo: getInfo,
-    trySend: trySend
+    trySend: trySend,
+    destroy: destroy
 }

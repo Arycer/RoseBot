@@ -1,6 +1,7 @@
 const { SlashCommandSubcommandBuilder, EmbedBuilder } = require('discord.js');
 const { getVoiceConnection, AudioPlayerStatus } = require('@discordjs/voice');
 const embedMessages = require('../../music/embedMessages.js');
+const util = require('../../music/util.js');
 
 const data = new SlashCommandSubcommandBuilder()
     .setName('stop')
@@ -8,8 +9,9 @@ const data = new SlashCommandSubcommandBuilder()
 
 var execute = async function(interaction) {
     var connection = getVoiceConnection(interaction.guildId);
-    connection.destroy();
+    var player = connection.state.subscription?.player;
 
+    await util.destroy(player, connection);
     interaction.followUp({ embeds: [embedMessages.getStopMessage()] });
 }
 

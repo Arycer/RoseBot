@@ -14,7 +14,7 @@ const cmd_files = readdirSync(cmd_dir)
 cmd_files.forEach(file => {
     const cmd_file = join(cmd_dir, file);
     const cmd = require(cmd_file);
-    data.addSubcommand(cmd.data);
+    cmd.group ? data.addSubcommandGroup(cmd.data) : data.addSubcommand(cmd.data);
 });
 
 module.exports = {
@@ -33,10 +33,19 @@ module.exports = {
             if (!queue.playing) return interaction.followUp({ embeds: [embedMessages.getNotPlayingMessage()] });
         }
 
-        for (const cmd_file of cmd_files) {
-            const cmd = require(join(cmd_dir, cmd_file));
-            if (cmd.data.name == interaction.options.getSubcommand()) {
-                return cmd.execute(interaction);
+        if (interaction.options.getSubcommandGroup()) {
+            for (const group_file of cmd_files) {
+                const group = require(join(cmd_dir, group_file));
+                if (group.data.name == interaction.options.getSubcommandGroup()) {
+                    return group.execute(interaction);
+                }
+            }
+        } else {
+            for (const cmd_file of cmd_files) {
+                const cmd = require(join(cmd_dir, cmd_file));
+                if (cmd.data.name == interaction.options.getSubcommand()) {
+                    return cmd.execute(interaction);
+                }
             }
         }
     }

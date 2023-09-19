@@ -128,13 +128,24 @@ var getLoopMessage = function(looping) {
     return embed;
 }
 
-var getShuffleMessage = function(shuffling) {
+var getShuffleModeMessage = function(shuffling) {
     var embed = new EmbedBuilder()
         .setAuthor({
             name: "Aleatorio: 🔀"
         })
         .setColor("#eee70b")
         .setDescription(`El modo aleatorio ahora está ${shuffling ? "activado" : "desactivado"}.`)
+
+    return embed;
+}
+
+var getShuffleQueueMessage = function() {
+    var embed = new EmbedBuilder()
+        .setAuthor({
+            name: "Cola mezclada: 🔀"
+        })
+        .setColor("#eee70b")
+        .setDescription(`Se ha mezclado la cola de reproducción.`)
 
     return embed;
 }
@@ -294,7 +305,8 @@ module.exports = {
     getQueueMessage: getQueueMessage,
     getSkipMessage: getSkipMessage,
     getLoopMessage: getLoopMessage,
-    getShuffleMessage: getShuffleMessage,
+    getShuffleModeMessage: getShuffleModeMessage,
+    getShuffleQueueMessage: getShuffleQueueMessage,
     getLeaveMessage: getLeaveMessage,
     getPauseMessage: getPauseMessage,
     getResumeMessage: getResumeMessage,
