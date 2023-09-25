@@ -4,3 +4,4 @@ test.js
 /.gradle/
 /.idea/
 /gradle/
+/build/
