@@ -1,3 +1,6 @@
 node_modules/
 .env
 test.js
+/.gradle/
+/.idea/
+/gradle/
