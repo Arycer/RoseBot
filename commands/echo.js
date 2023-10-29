@@ -17,5 +17,8 @@ module.exports = {
 
         const message = interaction.options.getString('mensaje');
         interaction.channel.send(message);
+
+        interaction.reply({ content: 'Mensaje enviado.', ephemeral: true });
+        interaction.channel.messages.fetch(interaction.id).then(message => message.delete());
     }
 }
