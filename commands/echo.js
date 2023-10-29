@@ -15,6 +15,9 @@ module.exports = {
         }
 
         const message = interaction.options.getString('mensaje');
+
+        message.replace(/\\n/g, '\n');
+
         interaction.channel.send(message);
         interaction.deleteReply();
     }
