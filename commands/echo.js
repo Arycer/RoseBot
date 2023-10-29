@@ -12,13 +12,13 @@ module.exports = {
 
         // Verificar si el usuario tiene el permiso de gestionar mensajes
         if (!interaction.member.permissions.has('MANAGE_MESSAGES')) {
-            return interaction.reply({ content: 'No tienes permiso para usar este comando.', ephemeral: true });
+            return interaction.followUp({ content: 'No tienes permiso para usar este comando.', ephemeral: true });
         }
 
         const message = interaction.options.getString('mensaje');
         interaction.channel.send(message);
 
-        interaction.reply({ content: 'Mensaje enviado.', ephemeral: true });
+        interaction.followUp({ content: 'Mensaje enviado.', ephemeral: true });
         interaction.channel.messages.fetch(interaction.id).then(message => message.delete());
     }
 }
