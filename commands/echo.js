@@ -16,9 +16,12 @@ module.exports = {
 
         const message = interaction.options.getString('mensaje');
 
-        message.replace(/\\n/g, '\n');
+        // introduce a new line every \n
+        const messageArray = message.split('\n');
+        for (let i = 0; i < messageArray.length; i++) {
+            interaction.channel.send(messageArray[i]);
+        }
 
-        interaction.channel.send(message);
-        interaction.deleteReply();
+        await interaction.deleteReply();
     }
 }
